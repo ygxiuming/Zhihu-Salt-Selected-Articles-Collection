@@ -1,5 +1,5 @@
 # 深情男配ooc事件  
-[原文地址](https://onehu.xyz/2023/01/08/%E6%B7%B1%E6%83%85%E7%94%B7%E9%85%8Dooc%E4%BA%8B%E4%BB%B6)  
+[原文地址](https://onehu.xyz/2023/01/13/%E6%B7%B1%E6%83%85%E7%94%B7%E9%85%8Dooc%E4%BA%8B%E4%BB%B6)  
 <br>   
 &emsp;&emsp;我是甜文女配，跟深情男二契约结婚了。  
 <br>   
@@ -1241,5 +1241,5 @@
 <br>   
 &emsp;&emsp;.  
 <br>   
-本文搬运来自：https://onehu.xyz/2023/01/08/%E6%B7%B1%E6%83%85%E7%94%B7%E9%85%8Dooc%E4%BA%8B%E4%BB%B6  
+本文搬运来自：https://onehu.xyz/2023/01/13/%E6%B7%B1%E6%83%85%E7%94%B7%E9%85%8Dooc%E4%BA%8B%E4%BB%B6  
 收藏于：https://github.com/ygxiuming/Zhihu-Salt-Selected-Articles-Collection
