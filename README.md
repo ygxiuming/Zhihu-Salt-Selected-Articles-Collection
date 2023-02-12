@@ -17,7 +17,7 @@
 <br>
 只需要去除登录界面即可  
 如果已安装油猴，可以添加我写的脚本，自动显示小说全文)(2023年2月21日未失效)  
-(脚本链接)[https://greasyfork.org/zh-CN/scripts/459907-%E7%9F%A5%E4%B9%8E%E6%90%AC%E8%BF%90%E5%B7%A5%E7%99%BB%E5%BD%95%E7%95%8C%E9%9D%A2%E5%8E%BB%E9%99%A4-%E6%98%BE%E7%A4%BA%E5%85%A8%E6%96%87%E5%86%85%E5%AE%B9]
+[脚本链接](https://greasyfork.org/zh-CN/scripts/459907-%E7%9F%A5%E4%B9%8E%E6%90%AC%E8%BF%90%E5%B7%A5%E7%99%BB%E5%BD%95%E7%95%8C%E9%9D%A2%E5%8E%BB%E9%99%A4-%E6%98%BE%E7%A4%BA%E5%85%A8%E6%96%87%E5%86%85%E5%AE%B9)
 
 
 [我不是盐神官网](https://onehu.xyz/)  
