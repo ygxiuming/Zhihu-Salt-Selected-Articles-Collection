@@ -56,6 +56,10 @@ jobs:
             N=$(git status --porcelain | grep -c '^??' || true)
             git add -A
             git commit -m "sync: 增量同步（新增约 ${N:-0} 篇）"
+            # 长时间同步期间 main 可能已有新提交（并发推送）：
+            # rebase 到最新 main，冲突时优先取本侧生成文件（索引/统计）
+            git fetch origin main
+            git rebase -X ours origin/main
             git push
             echo "changed=true" >> "$GITHUB_OUTPUT"
           else
