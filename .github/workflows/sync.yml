@@ -35,6 +35,7 @@ jobs:
         run: pip install -r scripts/requirements.txt
 
       - name: 增量同步
+        id: sync
         env:
           SYNC_RATE: "1.0"
           SYNC_LIMIT: ${{ inputs.limit || '800' }}
@@ -46,6 +47,22 @@ jobs:
 
       - name: 校验
         run: python scripts/validate.py
+
+      # 长时间追平若在后续步骤失败，已抓取的文章随 runner 销毁即丢失；
+      # 失败时把文章目录打包留存，可从 Artifacts 手动恢复
+      - name: 失败时保留已抓取文章
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sync-workspace-${{ github.run_id }}
+          retention-days: 7
+          path: |
+            我不是盐神
+            知乎搬运工
+            盐选文库
+            语雀盐选库
+            目录.md
+            data
 
       - name: 提交并推送
         id: commit
