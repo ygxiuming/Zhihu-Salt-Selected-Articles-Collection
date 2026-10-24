@@ -2,7 +2,7 @@ name: 同步源站
 
 on:
   schedule:
-    - cron: "0 2 * * *"   # 每日 02:00 UTC（北京 10:00）
+    - cron: "0 */2 * * *"   # 每 2 小时（增量扫描已优化为分钟级，见 EARLY_EXIT_PAGES）
   workflow_dispatch:
     inputs:
       sources:
@@ -38,6 +38,7 @@ jobs:
         env:
           SYNC_RATE: "1.0"
           SYNC_LIMIT: ${{ inputs.limit || '800' }}
+          YUQUE_COOKIE: ${{ secrets.YUQUE_COOKIE }}
         run: |
           python scripts/sync/run_sync.py \
             --sources "${{ inputs.sources || 'all' }}" \

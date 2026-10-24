@@ -2,17 +2,20 @@
 # -*- coding: utf-8 -*-
 """「我不是盐神」适配器（onehu.xyz，Hexo 站点，活跃更新）。
 
-策略：每次全量扫描 /archives/ 归档页（新→旧），按 URL 与标题指纹
-双重去重后抓取未知文章。无断点状态，永不漏抓；
-每日运行多花约 7 分钟扫描（417 页），换取对漏抓免疫。
+策略：扫描 /archives/ 归档页（新→旧），按 URL 与标题指纹双重去重后
+抓取未知文章。首次运行全量扫描并记录 full_scan_done；之后增量运行
+在连续 EARLY_EXIT_PAGES 页全部已知时提前退出（归档严格按时间倒序，
+新文章只会出现在最前面），单次增量扫描从约 7 分钟降到约 1 分钟。
 """
 import re
 
 from lxml import etree
 
-from base import Article, SourceAdapter, polite_get
+from base import (Article, SourceAdapter, load_progress, polite_get,
+                  save_progress)
 
 PAGE_CAP = 600  # 归档页安全上限（当前约 417 页）
+EARLY_EXIT_PAGES = 5
 
 
 class YanshenAdapter(SourceAdapter):
@@ -28,13 +31,15 @@ class YanshenAdapter(SourceAdapter):
             return False
 
     def fetch_new(self):
-        next_url, pages = f"{self.BASE}/archives/", 0
+        full_scan_done = bool(load_progress("yanshen").get("full_scan_done"))
+        next_url, pages, known_run = f"{self.BASE}/archives/", 0, 0
         while next_url and pages < PAGE_CAP:
             pages += 1
             r = polite_get(self.sess, next_url, timeout=25)
             if r.status_code != 200:
                 break
             tree = etree.HTML(r.content)
+            page_new = 0
             for a in tree.xpath("//a[./time and ./div]"):
                 href = (a.get("href") or "").strip()
                 if not href:
@@ -49,11 +54,19 @@ class YanshenAdapter(SourceAdapter):
                     # 下一轮运行会因 URL 仍未收录而重试
                     print(f"  [{self.name}] 抓取失败，跳过：{url}")
                     continue
+                page_new += 1
                 yield art
+            known_run = known_run + 1 if (full_scan_done and page_new == 0) else 0
+            if known_run >= EARLY_EXIT_PAGES:
+                print(f"  [{self.name}] 连续 {EARLY_EXIT_PAGES} 页无新增，提前结束")
+                return
             nxt = tree.xpath('//a[@rel="next"]/@href')
             next_url = self.join(nxt[0]) if nxt else None
         if pages >= PAGE_CAP:
             print(f"  [{self.name}] 达到归档页安全上限 {PAGE_CAP}，停止")
+        if not full_scan_done:
+            save_progress("yanshen", {"full_scan_done": True})
+            print(f"  [{self.name}] 全量扫描完成，后续运行启用提前退出")
 
     def join(self, href: str) -> str:
         return href if href.startswith("http") else self.BASE + href

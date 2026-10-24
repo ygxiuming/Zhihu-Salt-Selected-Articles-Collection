@@ -8,8 +8,10 @@
   正文在 `div.article-content` 内一句一段
 - 越界分页返回 404
 
-策略与 yanshen 相同：全量扫描列表页，按 URL 与标题指纹双重去重；
-404 条目记入 data/progress/yanxuanwk.json 的 dead 集合，避免重复请求。
+策略与 yanshen 相同：扫描列表页（新→旧），URL 与标题指纹双重去重；
+首次全量扫描后记录 full_scan_done，之后增量在连续 EARLY_EXIT_PAGES
+页全部已知时提前退出（列表严格按时间倒序）。404 条目记入
+data/progress/yanxuanwk.json 的 dead 集合，避免重复请求。
 注意：GitHub CI 的数据中心 IP 会被源站 Cloudflare 拦为 403，
 CI 环境健康检查会自动跳过；追平/增量需在可达网络运行。
 """
@@ -20,6 +22,7 @@ from base import (Article, SourceAdapter, load_progress, polite_get,
 from cleanlib import clean_paragraphs
 
 PAGE_CAP = 1400  # 当前约 1167 页，留余量
+EARLY_EXIT_PAGES = 5
 
 
 class YanxuanwkAdapter(SourceAdapter):
@@ -63,12 +66,15 @@ class YanxuanwkAdapter(SourceAdapter):
         return href if href.startswith("http") else self.BASE + href
 
     def fetch_new(self):
-        dead = set(load_progress("yanxuanwk").get("dead", []))
-        page = 1
+        progress = load_progress("yanxuanwk")
+        dead = set(progress.get("dead", []))
+        full_scan_done = bool(progress.get("full_scan_done"))
+        page, known_run = 1, 0
         while page <= PAGE_CAP:
             entries, has_next = self.list_entries(page)
             if not entries:
                 break
+            page_new = 0
             for title, u in entries:
                 if u in dead or self.already_known(title, u):
                     continue
@@ -78,12 +84,21 @@ class YanxuanwkAdapter(SourceAdapter):
                     dead.add(u)
                     save_progress("yanxuanwk", {"dead": sorted(dead)})
                     continue
+                page_new += 1
                 yield art
+            known_run = known_run + 1 if (full_scan_done and page_new == 0) else 0
+            if known_run >= EARLY_EXIT_PAGES:
+                print(f"  [{self.name}] 连续 {EARLY_EXIT_PAGES} 页无新增，提前结束")
+                return
             if not has_next:
                 break
             page += 1
         if page > PAGE_CAP:
             print(f"  [{self.name}] 达到列表页安全上限 {PAGE_CAP}，停止")
+        if not full_scan_done:
+            save_progress("yanxuanwk", {"dead": sorted(dead),
+                                        "full_scan_done": True})
+            print(f"  [{self.name}] 全量扫描完成，后续运行启用提前退出")
 
     def fetch_article(self, listing_title: str, url: str):
         try:

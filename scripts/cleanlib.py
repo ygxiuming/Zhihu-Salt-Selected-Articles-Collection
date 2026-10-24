@@ -242,3 +242,36 @@ def build_markdown(meta: dict, paras: list) -> str:
 def preview_of(paras: list, limit: int = 80) -> str:
     text = paras[0] if paras else ""
     return text[:limit] + ("…" if len(text) > limit else "")
+
+
+# ---------------------------------------------------------------- 语雀 markdown 清洗
+
+# markdown 图片（本库无图惯例，整行丢弃）
+_MD_IMAGE_RE = re.compile(r"!\[[^\]]*\]\([^)]*\)|<img[^>]*>", re.I)
+# markdown 链接保留文字丢弃目标
+_MD_LINK_RE = re.compile(r"\[([^\]]*)\]\([^)]*\)")
+# 行内 HTML 标签（font/span 等）
+_INLINE_TAG_RE = re.compile(r"</?[a-zA-Z][^>]*>")
+# HTML 实体
+_ENTITY_DEC_RE = re.compile(r"&#(\d+);")
+_MD_HEADING_RE = re.compile(r"^#{1,6}\s+")
+
+
+def clean_markdown_source(md: str) -> list:
+    """清洗语雀导出的 markdown 正文为段落列表。"""
+    out = []
+    for raw in md.split("\n"):
+        ln = _MD_IMAGE_RE.sub("", raw)
+        ln = _MD_LINK_RE.sub(r"\1", ln)
+        ln = _INLINE_TAG_RE.sub("", ln)
+        ln = _ENTITY_DEC_RE.sub(lambda m: chr(int(m.group(1))), ln)
+        ln = ZERO_WIDTH_RE.sub("", ln)
+        s = ln.strip()
+        if not s:
+            continue
+        s = _MD_HEADING_RE.sub("", s).strip()
+        s = WATERMARK_RE.sub("", s)
+        if not s or _JUNK_LINE_RE.match(s):
+            continue
+        out.append(s)
+    return out
