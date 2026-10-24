@@ -1,0 +1,17 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }} · {{ site.Title }}{{ end }}</title>
+<meta name="description" content="{{ site.Params.description }}">
+{{ $css := resources.Get "style.css" | minify | fingerprint }}
+<link rel="stylesheet" href="{{ $css.RelPermalink }}">
+<script>
+  /* 主题提前初始化，避免夜间模式闪白 */
+  (function () {
+    var pref = localStorage.getItem("theme") || "auto";
+    var dark = pref === "dark" || (pref === "auto" &&
+      matchMedia("(prefers-color-scheme: dark)").matches);
+    document.documentElement.dataset.theme = dark ? "dark" : "light";
+    var size = localStorage.getItem("font-size");
+    if (size) document.documentElement.style.fontSize = size + "px";
+  })();
+</script>

@@ -1,0 +1,65 @@
+name: 构建部署站点
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: [同步源站]
+    types: [completed]
+  push:
+    branches: [main]
+    paths:
+      - "我不是盐神/**"
+      - "知乎搬运工/**"
+      - "layouts/**"
+      - "static/**"
+      - "hugo.toml"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: >-
+      ${{ github.event_name != 'workflow_run' ||
+          github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: peaceiris/actions-hugo@v3
+        with:
+          hugo-version: "0.154.5"
+          extended: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: 构建 Hugo 站点
+        run: hugo --minify --gc
+
+      - name: 生成 Pagefind 全文搜索索引（内置中日韩分词）
+        run: npx -y pagefind@1.5.2 --site public
+
+      - name: 检查发布体积（Pages 上限 1GB）
+        run: du -sh public
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

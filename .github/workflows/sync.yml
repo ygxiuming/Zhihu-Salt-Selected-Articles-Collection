@@ -1,0 +1,72 @@
+name: 同步源站
+
+on:
+  schedule:
+    - cron: "0 2 * * *"   # 每日 02:00 UTC（北京 10:00）
+  workflow_dispatch:
+    inputs:
+      sources:
+        description: "要同步的源（逗号分隔：yanshen,zhbyg,yanxuanwk,yuque 或 all）"
+        default: "all"
+      limit:
+        description: "每个源本次最多抓取篇数（0=不限，首跑追平约 7000 篇）"
+        default: "800"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: scripts/requirements.txt
+
+      - name: 安装依赖
+        run: pip install -r scripts/requirements.txt
+
+      - name: 增量同步
+        env:
+          SYNC_RATE: "1.0"
+          SYNC_LIMIT: ${{ inputs.limit || '800' }}
+        run: |
+          python scripts/sync/run_sync.py \
+            --sources "${{ inputs.sources || 'all' }}" \
+            --limit "$SYNC_LIMIT"
+
+      - name: 校验
+        run: python scripts/validate.py
+
+      - name: 提交并推送
+        id: commit
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            N=$(git status --porcelain | grep -c '^??' || true)
+            git add -A
+            git commit -m "sync: 增量同步（新增约 ${N:-0} 篇）"
+            git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "无新增内容"
+          fi
+
+      # 公共仓库定时任务 60 天无活动会被 GitHub 自动禁用：
+      # 无更新时由 keepalive 在临近 60 天时制造空提交保活
+      - uses: gautamkrishnar/keepalive-workflow@v2
+        if: always()
+
+      - name: 触发站点部署
+        if: steps.commit.outputs.changed == 'true'
+        run: gh workflow run deploy.yml --ref main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

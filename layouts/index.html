@@ -1,0 +1,37 @@
+{{ define "main" }}
+<section class="hero">
+  <h1>{{ site.Title }}</h1>
+  <p class="hero-desc">{{ site.Params.description }}</p>
+  <div id="search" class="search-box" data-pagefind="{{ "pagefind/pagefind.js" | relURL }}"></div>
+</section>
+
+<section class="source-cards">
+  {{ range site.Sections }}
+    {{ $count := len .Pages }}
+    <a class="card" href="{{ .RelPermalink }}">
+      <h2>{{ .Title }}</h2>
+      <p>共 {{ $count }} 篇 · 点击浏览目录</p>
+    </a>
+  {{ end }}
+</section>
+
+<section class="intro">
+  <h2>关于本站</h2>
+  <p>本站是 <a href="{{ site.Params.github }}" target="_blank" rel="noopener">GitHub 仓库</a> 的静态阅读版，
+    支持全文搜索（Pagefind，按需加载索引分片）与夜间模式。文章持续从源站增量同步。</p>
+  <p>也可以在 GitHub 仓库内直接阅读 Markdown：
+    {{ range site.Sections }}<a
+      href="{{ site.Params.github }}/tree/main/{{ .Name }}">{{ .Name }}</a>（含按拼音首字母分组的 <code>目录-*.md</code>）{{ end }}。</p>
+</section>
+
+<link rel="stylesheet" href="{{ "pagefind/pagefind-ui.css" | relURL }}">
+<script src="{{ "pagefind/pagefind-ui.js" | relURL }}"></script>
+<script>
+  new PagefindUI({
+    element: "#search",
+    baseUrl: {{ (urls.Parse site.BaseURL).Path }},
+    translations: { placeholder: "搜索标题或正文，例如：赘婿、克苏鲁、我的学姐" },
+    showImages: false
+  });
+</script>
+{{ end }}

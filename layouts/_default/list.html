@@ -1,0 +1,39 @@
+{{ define "main" }}
+<section class="list-page">
+  <header class="list-header">
+    <h1>{{ .Title }}</h1>
+    <p class="list-count">共 {{ len .Pages }} 篇 · 第 {{ .Paginator.PageNumber }} / {{ .Paginator.TotalPages }} 页</p>
+  </header>
+
+  <div id="search" class="search-box" data-pagefind="{{ "pagefind/pagefind.js" | relURL }}"></div>
+  <link rel="stylesheet" href="{{ "pagefind/pagefind-ui.css" | relURL }}">
+  <script src="{{ "pagefind/pagefind-ui.js" | relURL }}"></script>
+  <script>
+    new PagefindUI({
+      element: "#search",
+      baseUrl: {{ (urls.Parse site.BaseURL).Path }},
+      translations: { placeholder: "搜索标题或正文" },
+      showImages: false
+    });
+  </script>
+
+  <ul class="article-list">
+    {{ range .Paginator.Pages.ByTitle }}
+      <li>
+        <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+        {{ with .Params.column }}<span class="list-column">{{ . }}</span>{{ end }}
+      </li>
+    {{ end }}
+  </ul>
+
+  {{ if gt .Paginator.TotalPages 1 }}
+    <nav class="pagination">
+      {{ with .Paginator.First }}<a href="{{ . }}">首页</a>{{ end }}
+      {{ with .Paginator.Prev }}<a href="{{ . }}">‹ 上一页</a>{{ end }}
+      <span>第 {{ .Paginator.PageNumber }} / {{ .Paginator.TotalPages }} 页</span>
+      {{ with .Paginator.Next }}<a href="{{ . }}">下一页 ›</a>{{ end }}
+      {{ with .Paginator.Last }}<a href="{{ . }}">末页</a>{{ end }}
+    </nav>
+  {{ end }}
+</section>
+{{ end }}

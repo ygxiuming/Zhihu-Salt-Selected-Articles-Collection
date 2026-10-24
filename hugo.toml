@@ -1,0 +1,43 @@
+# Hugo 站点配置：知乎盐选文章收藏
+# 文章目录通过 module mounts 挂载为 content，仓库根目录保持原浏览结构不变
+baseURL = 'https://ygxiuming.github.io/Zhihu-Salt-Selected-Articles-Collection/'
+languageCode = 'zh-cn'
+defaultContentLanguage = 'zh-cn'
+title = '知乎盐选文章收藏'
+
+disableKinds = ['taxonomy', 'term', 'RSS', 'sitemap', 'robotsTXT']
+# 目录-*.md 是给 GitHub 仓库浏览用的索引，不进入站点
+ignoreFiles = ['目录-']
+pluralizeListTitles = false
+
+[pagination]
+  pagerSize = 100
+
+[markup]
+  [markup.goldmark.renderer]
+    unsafe = false
+  [markup.highlight]
+    codeFences = false
+
+[params]
+  description = '知乎盐选文章收集与在线阅读，数据来自「我不是盐神」与「知乎搬运工」，仅供个人收藏阅读'
+  github = 'https://github.com/ygxiuming/Zhihu-Salt-Selected-Articles-Collection'
+  repoName = 'Zhihu-Salt-Selected-Articles-Collection'
+
+[module]
+  [[module.mounts]]
+    source = '我不是盐神'
+    target = 'content/我不是盐神'
+  [[module.mounts]]
+    source = '知乎搬运工'
+    target = 'content/知乎搬运工'
+  [[module.mounts]]
+    source = 'static'
+    target = 'static'
+  # 同一份静态资源挂为 assets 以便指纹化（部署后浏览器不会用到旧缓存）
+  [[module.mounts]]
+    source = 'static'
+    target = 'assets'
+  [[module.mounts]]
+    source = 'layouts'
+    target = 'layouts'

@@ -1,0 +1,37 @@
+name: 全量快照 Release
+
+on:
+  schedule:
+    - cron: "0 3 1 * *"   # 每月 1 号
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 打包全量文章
+        run: |
+          TAG="snapshot-$(date +%Y-%m)"
+          echo "TAG=$TAG" >> "$GITHUB_ENV"
+          zip -qr "zhihu-salt-articles-$(date +%Y-%m).zip" \
+            我不是盐神 知乎搬运工 目录.md data/articles_index.json
+          du -sh *.zip
+
+      - name: 创建或更新 Release
+        run: |
+          ZIP="zhihu-salt-articles-$(date +%Y-%m).zip"
+          NOTES="全量文章快照（含 我不是盐神/ 与 知乎搬运工/ 目录及元数据索引）。
+          单文件限额 2GB，超过会拆分为多个资产。"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$ZIP" --clobber
+          else
+            gh release create "$TAG" "$ZIP" \
+              --title "全量快照 $TAG" --notes "$NOTES"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

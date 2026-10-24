@@ -1,0 +1,13 @@
+<header class="site-header">
+  <nav class="container nav">
+    <a class="brand" href="{{ site.BaseURL | relLangURL }}">{{ site.Title }}</a>
+    <div class="nav-links">
+      {{ range site.Sections }}
+        <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+      {{ end }}
+      <a href="{{ site.BaseURL | relLangURL }}#search">搜索</a>
+      <a href="{{ site.Params.github }}" target="_blank" rel="noopener">GitHub</a>
+    </div>
+    <button id="theme-toggle" class="icon-btn" title="切换夜间模式" aria-label="切换夜间模式">◐</button>
+  </nav>
+</header>

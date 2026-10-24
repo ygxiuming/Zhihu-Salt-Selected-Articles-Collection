@@ -1,0 +1,16 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# 本地工具状态
+.mimosa/
+.zcode/
+
+# Hugo 构建产物
+public/
+resources/
+.hugo_build.lock
+
+# Node
+node_modules/
