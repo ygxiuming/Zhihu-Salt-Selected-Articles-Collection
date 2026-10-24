@@ -38,7 +38,11 @@ class YanxuanwkAdapter(SourceAdapter):
             return False
 
     def list_entries(self, page: int):
-        """抓一页列表，返回 (entries, has_next)。entries 为 (标题, url)。"""
+        """抓一页列表，返回 (entries, has_next)。entries 为 (标题, url)。
+
+        翻页标记两种写法并存：首页有 rel=next，第 2 页起只有文字
+        「下一页 →」链接，两种都要识别。
+        """
         url = f"{self.BASE}/" if page == 1 else f"{self.BASE}/page/{page}/"
         r = polite_get(self.sess, url, timeout=25)
         if r.status_code != 200:
@@ -51,7 +55,8 @@ class YanxuanwkAdapter(SourceAdapter):
             title = a.xpath("string(.)").strip()
             if href and title:
                 entries.append((title, self.join(href)))
-        nxt = tree.xpath("//a[@rel=\"next\"]/@href")
+        nxt = tree.xpath("//a[@rel=\"next\"]/@href") \
+            or tree.xpath("//a[contains(., \"下一页\")]/@href")
         return entries, bool(nxt)
 
     def join(self, href: str) -> str:
