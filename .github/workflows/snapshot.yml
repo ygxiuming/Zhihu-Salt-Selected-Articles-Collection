@@ -28,7 +28,7 @@ jobs:
           fi
           git fetch --no-tags --depth=300 origin "refs/tags/$LAST_TAG:refs/tags/$LAST_TAG"
           N=$(git log --oneline "$LAST_TAG..HEAD" -- \
-            我不是盐神 知乎搬运工 目录.md data/articles_index.json | wc -l)
+            我不是盐神 知乎搬运工 盐选文库 语雀盐选库 目录.md data/articles_index.json | wc -l)
           if [ "$N" -eq 0 ]; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "自 $LAST_TAG 以来文章无更新，跳过本次发布"
@@ -43,7 +43,7 @@ jobs:
           TAG="snapshot-$(date +%Y-%m)"
           echo "TAG=$TAG" >> "$GITHUB_ENV"
           zip -qr "zhihu-salt-articles-$(date +%Y-%m).zip" \
-            我不是盐神 知乎搬运工 盐选文库 目录.md data/articles_index.json
+            我不是盐神 知乎搬运工 盐选文库 语雀盐选库 目录.md data/articles_index.json
           du -sh *.zip
 
       - name: 创建或更新 Release

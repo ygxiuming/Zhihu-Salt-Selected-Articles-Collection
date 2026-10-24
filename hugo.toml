@@ -35,6 +35,9 @@ pluralizeListTitles = false
     source = '盐选文库'
     target = 'content/盐选文库'
   [[module.mounts]]
+    source = '语雀盐选库'
+    target = 'content/语雀盐选库'
+  [[module.mounts]]
     source = 'static'
     target = 'static'
   # 同一份静态资源挂为 assets 以便指纹化（部署后浏览器不会用到旧缓存）
