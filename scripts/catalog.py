@@ -71,6 +71,20 @@ def write_index(articles: list) -> None:
     (data_dir / "articles_index.json").write_text(
         json.dumps({"generated": str(date.today()), "articles": articles},
                    ensure_ascii=False), encoding="utf-8")
+    write_stats(articles)
+
+
+def write_stats(articles: list) -> None:
+    """生成小体积统计文件，供 README 动态徽章读取（shields.io JSON endpoint）。"""
+    by_source = {}
+    for a in articles:
+        by_source[a["s"]] = by_source.get(a["s"], 0) + 1
+    data_dir = safe_dir("data")
+    data_dir.mkdir(exist_ok=True)
+    (data_dir / "stats.json").write_text(
+        json.dumps({"total": len(articles), "by_source": by_source,
+                    "updated": str(date.today())},
+                   ensure_ascii=False, indent=2), encoding="utf-8")
 
 
 def write_catalog(articles: list) -> None:

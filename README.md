@@ -1,89 +1,129 @@
-# 知乎盐选文章收藏 · 在线阅读
+<div align="center">
 
-[![部署站点](https://github.com/ygxiuming/Zhihu-Salt-Selected-Articles-Collection/actions/workflows/deploy.yml/badge.svg)](https://github.com/ygxiuming/Zhihu-Salt-Selected-Articles-Collection/actions/workflows/deploy.yml)
+# 🧂 知乎盐选文章收藏
+
+**收集 · 清洗 · 在线阅读 · 自动同步** —— 一个会自己长大的盐选文章库
+
+[![在线阅读](https://img.shields.io/badge/%F0%9F%93%96-在线阅读站点-8a5a2b?style=for-the-badge)](https://ygxiuming.github.io/Zhihu-Salt-Selected-Articles-Collection/)
+[![GitHub 仓库](https://img.shields.io/badge/%E2%98%85-Star%20%E6%94%AF%E6%8C%81-24292e?style=for-the-badge&logo=github)](https://github.com/ygxiuming/Zhihu-Salt-Selected-Articles-Collection)
+
+[![部署状态](https://github.com/ygxiuming/Zhihu-Salt-Selected-Articles-Collection/actions/workflows/deploy.yml/badge.svg)](https://github.com/ygxiuming/Zhihu-Salt-Selected-Articles-Collection/actions/workflows/deploy.yml)
 [![定时同步](https://github.com/ygxiuming/Zhihu-Salt-Selected-Articles-Collection/actions/workflows/sync.yml/badge.svg)](https://github.com/ygxiuming/Zhihu-Salt-Selected-Articles-Collection/actions/workflows/sync.yml)
+[![收录文章](https://img.shields.io/badge/dynamic/json?query=total&url=https%3A%2F%2Fraw.githubusercontent.com%2Fygxiuming%2FZhihu-Salt-Selected-Articles-Collection%2Fmain%2Fdata%2Fstats.json&label=%E6%94%B6%E5%BD%95&color=8a5a2b&suffix=%20%E7%AF%87)](https://github.com/ygxiuming/Zhihu-Salt-Selected-Articles-Collection/tree/main)
+[![最近同步](https://img.shields.io/badge/dynamic/json?query=updated&url=https%3A%2F%2Fraw.githubusercontent.com%2Fygxiuming%2FZhihu-Salt-Selected-Articles-Collection%2Fmain%2Fdata%2Fstats.json&label=%E6%9C%80%E8%BF%91%E5%90%8C%E6%AD%A5&color=6f6c64)](https://github.com/ygxiuming/Zhihu-Salt-Selected-Articles-Collection/actions)
+[![Release](https://img.shields.io/github/v/release/ygxiuming/Zhihu-Salt-Selected-Articles-Collection?color=b0854f)](https://github.com/ygxiuming/Zhihu-Salt-Selected-Articles-Collection/releases)
+[![仓库体积](https://img.shields.io/github/repo-size/ygxiuming/Zhihu-Salt-Selected-Articles-Collection?color=6f6c64)](https://github.com/ygxiuming/Zhihu-Salt-Selected-Articles-Collection)
 
-> 📖 **[点击这里在线阅读（支持全文搜索 / 夜间模式 / 字号调节）](https://ygxiuming.github.io/Zhihu-Salt-Selected-Articles-Collection/)**
+[在线阅读](https://ygxiuming.github.io/Zhihu-Salt-Selected-Articles-Collection/) ·
+[总目录](./目录.md) ·
+[数据源](#-数据源) ·
+[同步机制](#-自动同步机制) ·
+[快照下载](https://github.com/ygxiuming/Zhihu-Salt-Selected-Articles-Collection/releases) ·
+[本地开发](#%EF%B8%8F-本地开发)
 
-知乎盐选文章收集，文章来源于知乎搬运工和我不是盐神。
+![在线阅读站点首页](docs/images/home-light.png)
 
-由于该死的抖音老是推送，让我有时候想看盐选文章，但是又不甘心花这个钱。
-所以一般都是从知乎盐选搬运工和我不是盐神的网站上进行观看的，在这感谢大佬的付出。
+</div>
 
-可能是由于网站的不稳定，有时候访问不了，所以创建该仓库收藏大佬网站上的文章。仅供个人收藏，解解书瘾。如有其他意见，可联系本人，将会把该仓库转为私有。
+---
 
-## 数据源
+> 由于该死的抖音老是推送，让我有时候想看盐选文章，但是又不甘心花这个钱。
+> 所以一般都是从知乎盐选搬运工和我不是盐神的网站上进行观看的，在这感谢大佬的付出。
+> 可能是由于网站的不稳定，有时候访问不了，所以创建该仓库收藏大佬网站上的文章。
+> 仅供个人收藏，解解书瘾。如有其他意见，可联系本人，将会把该仓库转为私有。
 
-| 来源 | 状态 | 收录 | 说明 |
-|---|---|---|---|
-| [我不是盐神](https://onehu.xyz/) | ✅ 活跃更新 | 8300+ 篇（源站全量） | 每日定时增量同步 |
-| [知乎搬运工](https://www.zhbyg.top/) | ⚠️ 常失联 | 7000+ 篇（存量） | 源站可达时自动恢复同步 |
-| [盐选文库](https://www.yanxuanwk.com/) | ✅ 可访问 | 1.1 万+ 篇（待同步，与已有内容大量重合） | 每日定时增量同步 |
-| 语雀「知乎盐选库」 | 🧪 实验性 | 待导入 | 适配器已内置，默认关闭 |
+## ✨ 特性
 
-## 如何阅读
+- 🔍 **中文全文搜索** — 标题 + 正文开头建立索引（Pagefind 分片按需加载，收录词高亮）
+- 🌙 **夜间模式 / 字号调节** — 阅读偏好本地记忆，适配手机与桌面
+- 🔄 **全自动同步** — 每 2 小时增量抓取源站，新文章约 2 小时内自动上线
+- 🧹 **深度清洗** — 去水印/去排版噪音/统一元数据，目录内链由文件系统生成，0 死链
+- 📦 **全量快照** — 每月 1 号自动发布 ZIP 到 Releases（无更新则跳过），免克隆获取全量
+- 🛡️ **多源容错** — 任一源站失联自动跳过，恢复后自动续传，互不阻塞
 
-**方式一：在线站点（推荐）** —— 打开[在线阅读站](https://ygxiuming.github.io/Zhihu-Salt-Selected-Articles-Collection/)，
-首页搜索框支持中文全文搜索（标题 + 正文开头），文章页可调字号、切换夜间模式。
+## 📖 三种阅读方式
 
-**方式二：GitHub 内浏览** —— 从 [目录.md](./目录.md) 进入各源目录，
-按拼音首字母分组浏览（如 [我不是盐神/目录-README.md](./我不是盐神/目录-README.md)），
-所有内链由脚本生成并经校验（0 死链），点击标题直达 Markdown 原文。
+**① 在线站点（推荐）** — 打开 [阅读站](https://ygxiuming.github.io/Zhihu-Salt-Selected-Articles-Collection/)，搜索框支持中文全文检索：
 
-**方式三：全量下载** —— [Releases](https://github.com/ygxiuming/Zhihu-Salt-Selected-Articles-Collection/releases)
-每月 1 号自动发布全量 ZIP 快照，无需克隆仓库。
+| 浅色阅读 | 夜间模式 |
+|:---:|:---:|
+| ![文章页浅色](docs/images/article-light.png) | ![文章页夜间](docs/images/article-dark.png) |
 
-## 仓库结构
+**② GitHub 内浏览** — 从 [目录.md](./目录.md) 进入，各源目录按拼音首字母分组（如 [我不是盐神/目录-A.md](./我不是盐神/目录-A.md)），内链直达 Markdown 原文。
+
+**③ 全量下载** — [Releases](https://github.com/ygxiuming/Zhihu-Salt-Selected-Articles-Collection/releases) 每月发布全量 ZIP 快照。
+
+## 📡 数据源
+
+| 来源 | 状态 | 说明 |
+|---|:---:|---|
+| [我不是盐神](https://onehu.xyz/) | ✅ 活跃 | 最老牌盐选站，每日增量同步 |
+| [盐选文库](https://www.yanxuanwk.com/) | ✅ 静态归档 | 收录 1.1 万+ 篇，免登录 |
+| [知乎搬运工](https://www.zhbyg.top/) | ⚠️ 常失联 | 存量 7000+ 篇，恢复后自动续传 |
+| [语雀·知乎盐选库](https://www.yuque.com/dayuyu-ualcu/azo1ge) | 🧪 已停更 | 1000+ 篇精选全文（登录态导入） |
+
+各源文章**跨源自动去重**（标题归一化指纹 + 原文 URL 双保险）。
+
+## 🔄 自动同步机制
+
+```mermaid
+flowchart LR
+    A["📡 源站<br/>我不是盐神 · 盐选文库 · 语雀盐选库"] -->|"每 2 小时 · 限速 1 req/s<br/>双重去重 · 提前退出"| B["⚙️ GitHub Actions"]
+    B -->|"有新增才提交"| C[("🗃️ 本仓库<br/>Markdown + 索引")]
+    C -->|"自动构建"| D["🌐 Hugo 静态站<br/>+ Pagefind 中文索引"]
+    D --> E["🚀 GitHub Pages<br/>ygxiuming.github.io"]
+    C -->|"每月 1 号（有更新才发布）"| F["📦 Release 全量 ZIP"]
+```
+
+- **增量友好**：列表页严格按时间倒序，连续 5 页无新增即提前结束，单次扫描分钟级
+- **永不漏抓**：URL 与标题指纹双重去重替代断点标记，对漏抓免疫
+- **防禁用**：定时任务临近 GitHub「60 天无活动」限制时自动空提交保活
+- **容量预案**：站点/仓库/快照三层限额的分级应对方案见 [docs/存储与扩容预案.md](./docs/存储与扩容预案.md)
+
+## 📁 仓库结构
 
 ```
-├── 我不是盐神/          # 文章（front matter 元数据 + 规范正文）
-│   └── 目录-*.md        # 按拼音首字母分组的浏览目录（脚本生成）
-├── 知乎搬运工/          # 同上
-├── 盐选文库/            # 同上（yanxuanwk.com 镜像源）
-├── 目录.md              # 总目录入口（脚本生成）
+├── 我不是盐神/ 知乎搬运工/ 盐选文库/ 语雀盐选库/   # 四源文章（front matter + 规范正文）
+│   └── 目录-*.md                                   # 拼音首字母分组目录（脚本生成，永不失配）
+├── 目录.md               # 总目录入口
 ├── data/
-│   ├── articles_index.json   # 全库元数据索引（同步去重 / 目录生成）
-│   └── progress/             # 各源断点进度（增量同步）
-├── scripts/             # 迁移 / 校验 / 同步工具（Python）
-│   ├── cleanlib.py      #   清洗与规范化共享库
-│   ├── catalog.py       #   目录与索引生成（迁移、同步共用）
-│   ├── validate.py      #   仓库校验（内链 / 文件名 / 元数据）
-│   ├── migrate.py       #   一次性深度清洗迁移（已执行）
-│   └── sync/            #   定时同步框架 + 各源适配器
-├── hugo.toml            # 静态站配置（模块挂载文章目录）
-├── layouts/ static/     # 站点模板与样式（夜间模式 / 字号 / Pagefind UI）
-└── .github/workflows/   # 同步 / 部署 / 快照 三个工作流
+│   ├── articles_index.json   # 全库元数据索引（去重 / 目录生成）
+│   ├── stats.json            # 统计（本页徽章数据源）
+│   └── progress/             # 各源同步进度
+├── scripts/              # 迁移 / 校验 / 同步工具链（Python）
+│   ├── cleanlib.py       #   清洗与规范化共享库
+│   ├── catalog.py        #   索引 / 目录 / 统计生成
+│   ├── validate.py       #   五项校验（内链 / 文件名 / 元数据 / 残留 / 收录）
+│   └── sync/             #   同步框架 + 四源适配器
+├── layouts/ static/ hugo.toml   # 静态站（夜间模式 / 字号 / 搜索）
+└── .github/workflows/    # 同步 / 部署 / 快照 三个工作流
 ```
 
-## 自动化
-
-- **每日 02:00 UTC（北京 10:00）定时同步**：各源独立执行、互不阻塞；
-  断点续抓 + 跨源标题去重 + 限速 1 req/s 对源站友好；
-  有新增才提交（`sync: 增量同步`）并自动重新构建部署站点。
-  公共仓库定时任务 60 天无活动会被 GitHub 禁用，已用 keepalive 空提交保活。
-- **每月 1 号全量快照**：打包 ZIP 发布到 Releases（单文件限额 2GB）；自上次快照以来无文章更新时自动跳过。
-- 手动触发：Actions 页面可指定 `sources` 与单次抓取上限 `limit`。
-
-## 本地开发
+## 🛠️ 本地开发
 
 ```bash
-# 文章校验
+# 环境要求：Python 3.12+（uv）、Hugo extended ≥0.154、Node 20+
 uv venv && uv pip install -r scripts/requirements.txt
+
+# 校验仓库（内链 / 文件名 / 元数据 / 清洗残留 / 收录完整性）
 uv run python scripts/validate.py
 
-# 手动同步（默认限 800 篇/源，0 为不限）
+# 手动同步（增量，默认每源限 800 篇；--limit 0 为不限）
 uv run python scripts/sync/run_sync.py --sources yanshen --limit 50
 
-# 本地建站（需 hugo extended ≥0.154 与 node）
-hugo --minify --gc && npx -y pagefind@1.5.2 --site public
-hugo server -D   # 开发预览
+# 本地建站预览
+hugo --minify --gc && npx -y pagefind@1.3.0 --site public
+hugo server -D
 ```
 
-搜索索引为控制体积只收录标题与正文开头 1500 字（与源站搜索行为一致）；
-全部限制与扩容路径见 [docs/存储与扩容预案.md](./docs/存储与扩容预案.md)。
+## ⚖️ 免责声明
 
-## 免责声明
+本仓库及站点内容均收集自公开网络（知乎盐选专栏的第三方搬运站），仅供个人收藏学习，不提供任何下载牟利渠道，版权归原作者与知乎所有。如有侵权请联系，将立即转为私有或删除。
 
-本仓库及站点内容均收集自公开网络（知乎盐选专栏的第三方搬运站），
-仅供个人收藏学习，不提供任何下载牟利渠道，版权归原作者与知乎所有。
-如有侵权请联系，将立即转私有或删除。
+---
+
+<div align="center">
+
+**如果这个仓库对你有帮助，欢迎 Star ⭐ 让更多人看到**
+
+</div>
