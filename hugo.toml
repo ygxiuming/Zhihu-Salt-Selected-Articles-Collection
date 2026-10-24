@@ -1,5 +1,7 @@
 # Hugo 站点配置：知乎盐选文章收藏
 # 文章目录通过 module mounts 挂载为 content，仓库根目录保持原浏览结构不变
+# 文章页只内建开头 1500 字摘要（索引卡片），全文由前端从 GitHub raw 按需拉取，
+# Pages 发布体积不随正文增长（详见 docs/存储与扩容预案.md）
 baseURL = 'https://ygxiuming.github.io/Zhihu-Salt-Selected-Articles-Collection/'
 languageCode = 'zh-cn'
 defaultContentLanguage = 'zh-cn'
@@ -10,9 +12,6 @@ disableKinds = ['taxonomy', 'term', 'RSS', 'sitemap', 'robotsTXT']
 ignoreFiles = ['目录-']
 pluralizeListTitles = false
 
-[pagination]
-  pagerSize = 100
-
 [markup]
   [markup.goldmark.renderer]
     unsafe = false
@@ -20,9 +19,11 @@ pluralizeListTitles = false
     codeFences = false
 
 [params]
-  description = '知乎盐选文章收集与在线阅读，数据来自「我不是盐神」与「知乎搬运工」，仅供个人收藏阅读'
+  description = '知乎盐选文章收集与在线阅读，数据来自「我不是盐神」「知乎搬运工」「盐选文库」「语雀盐选库」，仅供个人收藏阅读'
   github = 'https://github.com/ygxiuming/Zhihu-Salt-Selected-Articles-Collection'
+  repoOwner = 'ygxiuming'
   repoName = 'Zhihu-Salt-Selected-Articles-Collection'
+  repoBranch = 'main'
 
 [module]
   [[module.mounts]]
@@ -47,3 +48,7 @@ pluralizeListTitles = false
   [[module.mounts]]
     source = 'layouts'
     target = 'layouts'
+  # 文章元数据索引发布为静态资源，供前端「全部文章」即时筛选浏览
+  [[module.mounts]]
+    source = 'data/articles_index.json'
+    target = 'static/data/articles_index.json'

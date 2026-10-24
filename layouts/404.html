@@ -1,7 +1,17 @@
 {{ define "main" }}
-<section class="not-found">
-  <h1>404</h1>
-  <p>页面不存在，可能文章已改名或链接有误。</p>
-  <p><a href="{{ site.BaseURL | relLangURL }}">返回首页</a> 或使用首页搜索。</p>
+<section class="lost">
+  <svg width="90" height="90" viewBox="0 0 64 64" aria-hidden="true">
+    <defs>
+      <linearGradient id="lost-lg" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#e2b071"/><stop offset="1" stop-color="#a3541f"/>
+      </linearGradient>
+    </defs>
+    <path d="M32 6 46 24 32 42 18 24Z" fill="url(#lost-lg)"/>
+    <path d="M21 44 29 54 21 62 13 54Z" fill="url(#lost-lg)" opacity=".9"/>
+    <path d="M43 44 51 54 43 62 35 54Z" fill="url(#lost-lg)" opacity=".72"/>
+  </svg>
+  <h1>这一页被风吹散了</h1>
+  <p>页面不存在，可能文章已改名或链接有误。回首页搜索一下吧。</p>
+  <a class="btn-primary" href="{{ site.BaseURL | relLangURL }}">返回首页</a>
 </section>
 {{ end }}

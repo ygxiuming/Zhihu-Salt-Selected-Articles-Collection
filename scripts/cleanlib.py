@@ -63,6 +63,29 @@ _GB_RANGES = (
 )
 
 
+_WS_RUN = re.compile(r"[ \t\xa0\u3000]+")
+
+
+def hugo_slug(stem: str) -> str:
+    """复现 Hugo 对文章路径段的 urlize 规则（已在全库 10416 篇上验证一致）：
+
+    连续空白（含 NBSP/全角空格）折叠为单个 "-"；删除 Unicode 标点/符号/
+    格式字符（但保留 URL 安全的 . + - _ ~）；ASCII 小写；去掉首尾的 "."。
+    浏览组件依赖它把索引里的文件名映射为站点永久链接，改动需与 Hugo 版本联测。
+    """
+    s = _WS_RUN.sub("-", stem)
+    out = []
+    for ch in s:
+        if ch in ".+-_~":
+            out.append(ch)
+            continue
+        cat = unicodedata.category(ch)
+        if cat[0] in ("P", "S") or cat == "Cf":
+            continue
+        out.append(ch.lower() if ch.isascii() else ch)
+    return "".join(out).strip(".")
+
+
 def pinyin_initial(text: str) -> str:
     """取标题首字符的拼音首字母（优先 pypinyin，缺失时回退 GB2312 码表）。"""
     if not text:

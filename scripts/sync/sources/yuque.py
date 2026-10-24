@@ -65,8 +65,11 @@ class YuqueAdapter(SourceAdapter):
         out = []
         for item in toc:
             if item.get("type") == "DOC" and item.get("url") and item.get("title"):
-                out.append((item["title"].strip(),
-                            f"{BOOK_URL}/{item['url']}"))
+                title = item["title"].strip()
+                # 知识库自身的说明页（含备案号等站务信息），不是盐选文章
+                if title.startswith("【") and "说明" in title:
+                    continue
+                out.append((title, f"{BOOK_URL}/{item['url']}"))
         return out
 
     def fetch_source(self, slug: str) -> str:

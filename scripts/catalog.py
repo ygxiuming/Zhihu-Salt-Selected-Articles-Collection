@@ -11,8 +11,8 @@ from datetime import date
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from cleanlib import (SOURCES, escape_link_text, norm_title, parse_article,
-                      pinyin_initial, preview_of)
+from cleanlib import (SOURCES, escape_link_text, hugo_slug, norm_title,
+                      parse_article, pinyin_initial, preview_of)
 
 REPO = Path(__file__).resolve().parent.parent
 CATALOG_PREFIX = "目录-"
@@ -46,7 +46,11 @@ def article_files():
 
 
 def rebuild_index() -> list:
-    """扫描全库文章的 front matter，重建元数据索引（t/s/u/c/p/i/k/v）。"""
+    """扫描全库文章的 front matter，重建元数据索引（t/s/u/c/p/i/k/v/l）。
+
+    l = 站点永久链接（源目录 + Hugo slug），由 hugo_slug 复现 Hugo 的
+    urlize 规则，供站点「全部文章」浏览组件直达文章页。
+    """
     articles = []
     for source, p in article_files():
         try:
@@ -59,6 +63,7 @@ def rebuild_index() -> list:
             "c": parsed["column"], "p": f"{source}/{p.name}",
             "i": pinyin_initial(parsed["title"]),
             "k": norm_title(parsed["title"]),
+            "l": f"{source}/{hugo_slug(p.stem)}/",
             "v": preview_of([ln.strip() for ln in parsed["body_lines"]
                              if ln.strip()]),
         })

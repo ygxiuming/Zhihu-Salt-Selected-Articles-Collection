@@ -1,38 +1,69 @@
 {{ define "main" }}
-<article class="post">
-  <header class="post-header">
-    <h1 class="post-title">{{ .Title }}</h1>
-    <div class="post-meta">
-      {{ with .Params.source }}<span class="badge">{{ . }}</span>{{ end }}
-      {{ with .Params.column }}<span class="column">专栏：《{{ . }}》</span>{{ end }}
-      {{ with .Params.source_url }}<a class="meta-link" href="{{ . }}" target="_blank" rel="noopener">阅读原文 ↗</a>{{ end }}
-      {{ with .File }}<a class="meta-link" href="{{ site.Params.github }}/blob/main/{{ .Path }}" target="_blank" rel="noopener">GitHub 源文件</a>{{ end }}
+{{/* 索引卡片页：只内建开头约 1500 字（同时是 Pagefind 索引窗口），
+      全文由 main.js 从 GitHub raw 直链按需拉取渲染，Pages 体积不随正文增长 */}}
+{{ $paras := split .RawContent "\n\n" }}
+{{ $picked := slice }}
+{{ $n := 0 }}
+{{ range $p := $paras }}
+  {{ if le $n 1500 }}
+    {{ $picked = $picked | append $p }}
+    {{ $n = add $n (strings.CountRunes $p) }}
+  {{ end }}
+{{ end }}
+{{ $excerpt := delimit $picked "\n\n" | .RenderString (dict "display" "block") }}
+{{ $srcVars := dict
+  "我不是盐神" "--src-yanshen" "盐选文库" "--src-yanxuanwk"
+  "知乎搬运工" "--src-zhbyg" "语雀盐选库" "--src-yuque" }}
+
+<article class="read-page" data-pagefind-body>
+  <header class="read-head">
+    {{ with .Params.source }}
+    <span class="read-src" style="--sc: var({{ index $srcVars . }})">{{ . }}</span>
+    {{ end }}
+    <h1>{{ .Title }}</h1>
+    <div class="read-meta">
+      {{ with .Params.column }}<span>专栏《{{ . }}》</span><span class="sep">·</span>{{ end }}
+      {{ with .Params.source_url }}<a href="{{ . }}" target="_blank" rel="noopener">阅读原文 ↗</a><span class="sep">·</span>{{ end }}
+      {{ with .File }}<a href="{{ site.Params.github }}/blob/main/{{ .Path }}" target="_blank" rel="noopener">GitHub</a>{{ end }}
     </div>
   </header>
 
-  <div class="reading-tools no-print">
-    <button id="font-minus" title="减小字号">A－</button>
-    <button id="font-reset" title="恢复字号">A</button>
-    <button id="font-plus" title="增大字号">A＋</button>
-  </div>
+  <div class="read-rule" aria-hidden="true">✦</div>
 
   <div class="content">
-    {{ .Content }}
+    {{ $excerpt }}
+    <div id="full-reader"
+         data-md="{{ .File.Path }}"
+         data-owner="{{ site.Params.repoOwner }}"
+         data-repo="{{ site.Params.repoName }}"
+         data-branch="{{ site.Params.repoBranch | default "main" }}"></div>
   </div>
-
-  {{/* 搜索索引只收录标题与开头若干字（Pagefind 对中文做字符级切分，
-       全文索引体积会与正文相当、逼近 Pages 1GB 上限；索引窗口与源站
-       搜索行为一致。全文级搜索需要时按 docs/存储与扩容预案.md 迁移） */}}
-  <div hidden data-pagefind-body>
-    {{ .Title }}
-    {{ with .Params.column }}《{{ . }}》{{ end }}
-    {{ .Content | plainify | truncate 1500 "…" }}
-  </div>
-
-  <nav class="post-pager no-print">
-    {{ with .Prev }}<a class="prev" href="{{ .RelPermalink }}" rel="prev">← {{ .Title }}</a>{{ end }}
-    <a class="toc" href="{{ site.BaseURL | relLangURL }}">目录</a>
-    {{ with .Next }}<a class="next" href="{{ .RelPermalink }}" rel="next">{{ .Title }} →</a>{{ end }}
-  </nav>
 </article>
+
+<nav class="post-pager">
+  {{ with .Prev }}
+  <a href="{{ .RelPermalink }}" rel="prev">
+    <span class="pp-label">← 上一篇</span>
+    <span class="pp-title">{{ .Title }}</span>
+  </a>
+  {{ end }}
+  {{ with .Next }}
+  <a class="next" href="{{ .RelPermalink }}" rel="next">
+    <span class="pp-label">下一篇 →</span>
+    <span class="pp-title">{{ .Title }}</span>
+  </a>
+  {{ end }}
+</nav>
+
+<div class="fabs" id="fabs">
+  <div class="fab-group" role="group" aria-label="字号调节">
+    <button type="button" id="font-plus" title="增大字号">A＋</button>
+    <button type="button" id="font-reset" title="恢复字号">A</button>
+    <button type="button" id="font-minus" title="减小字号">A－</button>
+  </div>
+  <button type="button" class="fab" id="back-top" title="回到顶部" aria-label="回到顶部">↑</button>
+</div>
+
+{{ $marked := resources.Get "vendor/marked.min.js" | fingerprint }}
+<script src="{{ $marked.RelPermalink }}" defer></script>
 {{ end }}

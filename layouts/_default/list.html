@@ -1,39 +1,20 @@
 {{ define "main" }}
 <section class="list-page">
-  <header class="list-header">
-    <h1>{{ .Title }}</h1>
-    <p class="list-count">共 {{ len .Pages }} 篇 · 第 {{ .Paginator.PageNumber }} / {{ .Paginator.TotalPages }} 页</p>
-  </header>
-
-  <div id="search" class="search-box" data-pagefind="{{ "pagefind/pagefind.js" | relURL }}"></div>
-  <link rel="stylesheet" href="{{ "pagefind/pagefind-ui.css" | relURL }}">
-  <script src="{{ "pagefind/pagefind-ui.js" | relURL }}"></script>
-  <script>
-    new PagefindUI({
-      element: "#search",
-      baseUrl: {{ (urls.Parse site.BaseURL).Path }},
-      translations: { placeholder: "搜索标题或正文" },
-      showImages: false
-    });
-  </script>
-
-  <ul class="article-list">
-    {{ range .Paginator.Pages.ByTitle }}
-      <li>
-        <a href="{{ .RelPermalink }}">{{ .Title }}</a>
-        {{ with .Params.column }}<span class="list-column">{{ . }}</span>{{ end }}
-      </li>
-    {{ end }}
-  </ul>
-
-  {{ if gt .Paginator.TotalPages 1 }}
-    <nav class="pagination">
-      {{ with .Paginator.First }}<a href="{{ . }}">首页</a>{{ end }}
-      {{ with .Paginator.Prev }}<a href="{{ . }}">‹ 上一页</a>{{ end }}
-      <span>第 {{ .Paginator.PageNumber }} / {{ .Paginator.TotalPages }} 页</span>
-      {{ with .Paginator.Next }}<a href="{{ . }}">下一页 ›</a>{{ end }}
-      {{ with .Paginator.Last }}<a href="{{ . }}">末页</a>{{ end }}
-    </nav>
-  {{ end }}
+  <h1 class="sec-title">{{ .Title }}<span class="sec-hint">共 {{ len .Pages }} 篇 · 跨源去重后</span></h1>
+  <div id="browser"
+       data-source="{{ .Title }}"
+       data-index="{{ "data/articles_index.json" | relURL }}"
+       data-base="{{ (urls.Parse site.BaseURL).Path }}"
+       data-repo-url="{{ site.Params.github }}">
+    {{/* 无 JS 兜底：静态渲染前 40 篇；JS 可用时替换为完整筛选浏览 */}}
+    <ul class="browse-list">
+      {{ range first 40 .Pages.ByTitle }}
+        <li><a href="{{ .RelPermalink }}"><span class="bl-title">{{ .Title }}</span></a></li>
+      {{ end }}
+    </ul>
+  </div>
+  <noscript><div class="read-error">筛选与分页需启用 JavaScript；当前显示前 40 篇（按标题排序），
+    完整目录见仓库内 <a class="btn" href="{{ site.Params.github }}/tree/main/{{ .Name }}"
+    target="_blank" rel="noopener">{{ .Name }}/目录-*.md</a>。</div></noscript>
 </section>
 {{ end }}
