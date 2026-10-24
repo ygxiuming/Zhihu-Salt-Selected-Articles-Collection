@@ -61,9 +61,21 @@ jobs:
           fi
 
       # 公共仓库定时任务 60 天无活动会被 GitHub 自动禁用：
-      # 无更新时由 keepalive 在临近 60 天时制造空提交保活
-      - uses: gautamkrishnar/keepalive-workflow@v2
+      # 临近 60 天无提交时制造空提交保活（内联实现，避免依赖第三方 action）
+      - name: 保活（防止定时任务被禁用）
         if: always()
+        run: |
+          LAST=$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq .commit.committer.date)
+          DAYS=$(( ($(date +%s) - $(date -d "$LAST" +%s)) / 86400 ))
+          echo "距上次提交 $DAYS 天"
+          if [ "$DAYS" -ge 55 ]; then
+            git config user.name "ygxiuming"
+            git config user.email "ygxiuming@users.noreply.github.com"
+            git commit --allow-empty -m "chore: keepalive（防止定时任务被自动禁用）"
+            git push
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 触发站点部署
         if: steps.commit.outputs.changed == 'true'

@@ -34,9 +34,11 @@ def safe_dir(rel: str) -> Path:
 
 
 def article_files():
-    """遍历两个源目录下的全部文章文件（排除目录页）。"""
+    """遍历各源目录下的全部文章文件（排除目录页；未创建的源目录跳过）。"""
     for source in SOURCES:
         d = safe_dir(source)
+        if not d.is_dir():
+            continue
         for p in sorted(d.iterdir()):
             if p.is_file() and p.name.endswith(".md") \
                     and not p.name.startswith(CATALOG_PREFIX):

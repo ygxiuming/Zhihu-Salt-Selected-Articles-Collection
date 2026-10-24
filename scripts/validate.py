@@ -25,6 +25,8 @@ problems = {"bad_filename": [], "missing_frontmatter": [], "content_residue": []
 def check_filenames():
     for source in SOURCES:
         d = REPO / source
+        if not d.is_dir():
+            continue
         for p in d.iterdir():
             n = p.name
             if n.endswith(" .md") or n.startswith(".") or n != n.strip() \

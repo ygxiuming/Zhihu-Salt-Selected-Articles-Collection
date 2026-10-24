@@ -21,7 +21,7 @@ HTML_TAG_RE = re.compile(r"</?[A-Za-z][^>]{0,160}>")
 HTML_HINT_RE = re.compile(r"class=|<div|<span|<p[ >]|<a |<br", re.I)
 # 零宽字符（源站排版残留）
 ZERO_WIDTH_RE = re.compile(r"[\u200b\u200c\u200d\ufeff]")
-SOURCES = ("我不是盐神", "知乎搬运工", "盐选文库")
+SOURCES = ("我不是盐神", "知乎搬运工", "盐选文库", "语雀盐选库")
 
 
 def normalize_filename(stem: str) -> str:
