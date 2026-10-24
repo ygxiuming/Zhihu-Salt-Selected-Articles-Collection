@@ -14,7 +14,31 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: 检查自上次快照以来是否有内容更新
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          LAST_TAG=$(gh release list --limit 100 \
+            --json tagName --jq '[.[].tagName | select(startswith("snapshot-"))] | sort | .[-1] // ""')
+          if [ -z "$LAST_TAG" ]; then
+            echo "从未发布过快照，直接发布"
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git fetch --no-tags --depth=300 origin "refs/tags/$LAST_TAG:refs/tags/$LAST_TAG"
+          N=$(git log --oneline "$LAST_TAG..HEAD" -- \
+            我不是盐神 知乎搬运工 目录.md data/articles_index.json | wc -l)
+          if [ "$N" -eq 0 ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "自 $LAST_TAG 以来文章无更新，跳过本次发布"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "自 $LAST_TAG 以来有 $N 个内容提交，继续发布"
+          fi
+
       - name: 打包全量文章
+        if: steps.check.outputs.changed == 'true'
         run: |
           TAG="snapshot-$(date +%Y-%m)"
           echo "TAG=$TAG" >> "$GITHUB_ENV"
@@ -23,6 +47,7 @@ jobs:
           du -sh *.zip
 
       - name: 创建或更新 Release
+        if: steps.check.outputs.changed == 'true'
         run: |
           ZIP="zhihu-salt-articles-$(date +%Y-%m).zip"
           NOTES="全量文章快照（含 我不是盐神/ 与 知乎搬运工/ 目录及元数据索引）。
