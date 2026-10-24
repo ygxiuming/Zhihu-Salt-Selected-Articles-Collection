@@ -46,12 +46,11 @@ jobs:
         with:
           node-version: "22"
 
-      - name: 构建 Hugo 站点（串行渲染规避并发竞态，产物校验兜底）
-        env:
-          GOMAXPROCS: "1"
+      - name: 构建 Hugo 站点（内存渲染规避落盘竞态，产物校验兜底）
         run: |
           for i in 1 2 3; do
-            hugo --minify --gc && python3 scripts/verify_site.py public && exit 0
+            hugo --minify --gc --renderToMemory && \
+              python3 scripts/verify_site.py public && exit 0
             echo "::warning::第 $i 次构建存在损坏页面，重建…" >&2
           done
           echo "::error::连续 3 次构建均存在损坏页面" >&2

@@ -120,8 +120,8 @@ uv run python scripts/validate.py
 # 手动同步（增量，默认每源限 800 篇；--limit 0 为不限）
 uv run python scripts/sync/run_sync.py --sources yanshen --limit 50
 
-# 本地建站预览（串行渲染规避 Hugo 并发竞态，构建后校验产物）
-GOMAXPROCS=1 hugo --minify --gc && python3 scripts/verify_site.py public \
+# 本地建站预览（--renderToMemory 规避 Hugo 落盘竞态，构建后校验产物）
+hugo --minify --gc --renderToMemory && python3 scripts/verify_site.py public \
   && npx -y pagefind@1.5.2 --site public
 python3 -m http.server -d public 8000
 ```
