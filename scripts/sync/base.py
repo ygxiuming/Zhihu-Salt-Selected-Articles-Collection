@@ -83,6 +83,15 @@ def load_known_titles() -> set:
     return {a["k"] for a in data.get("articles", []) if a.get("k")}
 
 
+def load_known_urls() -> set:
+    """已收录原文 URL 集合（列表扫描去重，配合标题指纹双保险）。"""
+    idx = REPO / "data" / "articles_index.json"
+    if not idx.exists():
+        return set()
+    data = json.loads(idx.read_text(encoding="utf-8"))
+    return {a["u"] for a in data.get("articles", []) if a.get("u")}
+
+
 def existing_file(source: str, title: str) -> bool:
     """按规范化文件名判断是否已存在同名文章（标题去重之外的兜底）。"""
     stem = normalize_filename(title)
@@ -109,9 +118,17 @@ class SourceAdapter:
         self.limit = limit          # 本次最多抓取篇数；0 = 不限
         self.sess = session()
         self.known = load_known_titles()
+        self.known_urls = load_known_urls()
         self.written = 0
         self.skipped = 0
         self.failed = 0
+
+    def already_known(self, title: str, url: str) -> bool:
+        """URL 或标题指纹命中即视为已收录。"""
+        if url and url in self.known_urls:
+            return True
+        key = norm_title(title)
+        return bool(key) and key in self.known
 
     def health(self) -> bool:
         """源站可达性检查；不可达返回 False 并整体跳过。"""
@@ -133,13 +150,15 @@ class SourceAdapter:
         for art in self.fetch_new():
             try:
                 key = norm_title(art.title)
-                if key and key in self.known:
+                if art.source_url in self.known_urls or (key and key in self.known):
                     self.skipped += 1
                     saved = False
                 else:
                     self.write_article(art)
                     if key:
                         self.known.add(key)
+                    if art.source_url:
+                        self.known_urls.add(art.source_url)
                     self.written += 1
                     saved = True
                 self.after_save(art, saved)

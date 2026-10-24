@@ -40,6 +40,8 @@ def main():
     ap.add_argument("--limit", type=int,
                     default=int(os.environ.get("SYNC_LIMIT", "0")),
                     help="每个源本次最多抓取篇数（0=不限）")
+    ap.add_argument("--no-finalize", action="store_true",
+                    help="跳过结尾的索引/目录重建（供分批追平时避免与 CI 冲突）")
     args = ap.parse_args()
 
     selected = (list(ADAPTERS) if args.sources == "all"
@@ -59,12 +61,18 @@ def main():
             summary.append({"source": cls.name, "status": "异常中断",
                             "written": 0, "skipped": 0, "failed": 0})
 
-    text = finalize(summary)
+    if args.no_finalize:
+        # 分批追平模式：CI 可能同时在重建索引/目录，本地不写避免冲突
+        text = "\n".join(f"| {r['source']} | {r['status']} | {r['written']} "
+                         f"| {r['skipped']} | {r['failed']} |" for r in summary)
+        text = "## 同步结果（索引/目录未重建，--no-finalize）\n\n" + text
+    else:
+        text = finalize(summary)
     print("\n" + text)
     gp = os.environ.get("GITHUB_STEP_SUMMARY")
     if gp:
-        with open(gp, "a", encoding="utf-8") as f:
-            f.write("\n" + text + "\n")
+        # GITHUB_STEP_SUMMARY 为 Actions 挂载的空文件，单次覆盖写入即可
+        Path(gp).write_text(text + "\n", encoding="utf-8")
 
 
 if __name__ == "__main__":

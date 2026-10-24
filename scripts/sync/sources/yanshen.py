@@ -2,15 +2,15 @@
 # -*- coding: utf-8 -*-
 """「我不是盐神」适配器（onehu.xyz，Hexo 站点，活跃更新）。
 
-策略：从 /archives/ 归档页（新→旧）扫描到上次断点为止，
-按新→旧顺序抓取文章；每篇保存成功即推进断点，中断不丢进度。
+策略：每次全量扫描 /archives/ 归档页（新→旧），按 URL 与标题指纹
+双重去重后抓取未知文章。无断点状态，永不漏抓；
+每日运行多花约 7 分钟扫描（417 页），换取对漏抓免疫。
 """
 import re
 
 from lxml import etree
 
-from base import (Article, SourceAdapter, load_progress, polite_get,
-                  save_progress)
+from base import Article, SourceAdapter, polite_get
 
 PAGE_CAP = 600  # 归档页安全上限（当前约 417 页）
 
@@ -27,9 +27,8 @@ class YanshenAdapter(SourceAdapter):
             print(f"  [{self.name}] 健康检查失败: {exc}")
             return False
 
-    def list_archive(self, marker_url: str):
-        """扫描归档页，返回 (title, url) 列表（新→旧），到断点即停。"""
-        entries, next_url, pages = [], f"{self.BASE}/archives/", 0
+    def fetch_new(self):
+        next_url, pages = f"{self.BASE}/archives/", 0
         while next_url and pages < PAGE_CAP:
             pages += 1
             r = polite_get(self.sess, next_url, timeout=25)
@@ -40,28 +39,24 @@ class YanshenAdapter(SourceAdapter):
                 href = (a.get("href") or "").strip()
                 if not href:
                     continue
-                url = urllib_join(self.BASE, href)
+                url = self.join(href)
                 title = (a.xpath("./div/text()") or [""])[0].strip()
-                if title and url != marker_url:
-                    entries.append((title, url))
-                elif url == marker_url:
-                    return entries, True
+                if not title or self.already_known(title, url):
+                    continue
+                art = self.fetch_article(title, url)
+                if art is None:
+                    # 抓取失败（重试后）：跳过该篇继续扫描，
+                    # 下一轮运行会因 URL 仍未收录而重试
+                    print(f"  [{self.name}] 抓取失败，跳过：{url}")
+                    continue
+                yield art
             nxt = tree.xpath('//a[@rel="next"]/@href')
-            next_url = urllib_join(self.BASE, nxt[0]) if nxt else None
-        return entries, False
+            next_url = self.join(nxt[0]) if nxt else None
+        if pages >= PAGE_CAP:
+            print(f"  [{self.name}] 达到归档页安全上限 {PAGE_CAP}，停止")
 
-    def fetch_new(self):
-        marker = load_progress("yanshen").get("last_url", "")
-        entries, hit_marker = self.list_archive(marker)
-        if marker and not hit_marker:
-            print(f"  [{self.name}] 警告：归档中未找到断点 {marker}，按全量处理")
-        for title, url in entries:
-            art = self.fetch_article(title, url)
-            if art is None:
-                # 抓取失败即停止本轮：断点未推进，下次运行从此重试
-                print(f"  [{self.name}] 抓取失败，本轮停止：{url}")
-                break
-            yield art
+    def join(self, href: str) -> str:
+        return href if href.startswith("http") else self.BASE + href
 
     def fetch_article(self, listing_title: str, url: str):
         try:
@@ -86,15 +81,6 @@ class YanshenAdapter(SourceAdapter):
             return None
         return Article(title=title, source=self.name, source_url=url,
                        paragraphs=paragraphs, date=date)
-
-    def after_save(self, art: Article, saved: bool):
-        save_progress("yanshen", {"last_url": art.source_url})
-
-
-def urllib_join(base: str, href: str) -> str:
-    if href.startswith("http"):
-        return href
-    return base + ("" if href.startswith("/") else "/") + href
 
 
 def clean_article(body_lines):

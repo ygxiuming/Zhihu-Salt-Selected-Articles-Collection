@@ -8,9 +8,10 @@
   正文在 `div.article-content` 内一句一段
 - 越界分页返回 404
 
-策略与 yanshen 相同：从列表页（新→旧）扫描到断点为止，
-按新→旧抓取；保存成功即推进断点；单篇 404 视为永久缺失，
-推进断点后继续（HTTP 基座已含 3 次退避重试，瞬时故障风险低）。
+策略与 yanshen 相同：全量扫描列表页，按 URL 与标题指纹双重去重；
+404 条目记入 data/progress/yanxuanwk.json 的 dead 集合，避免重复请求。
+注意：GitHub CI 的数据中心 IP 会被源站 Cloudflare 拦为 403，
+CI 环境健康检查会自动跳过；追平/增量需在可达网络运行。
 """
 from lxml import etree
 
@@ -57,23 +58,23 @@ class YanxuanwkAdapter(SourceAdapter):
         return href if href.startswith("http") else self.BASE + href
 
     def fetch_new(self):
-        marker = load_progress("yanxuanwk").get("last_url", "")
-        page, hit_marker = 1, False
-        while page <= PAGE_CAP and not hit_marker:
+        dead = set(load_progress("yanxuanwk").get("dead", []))
+        page = 1
+        while page <= PAGE_CAP:
             entries, has_next = self.list_entries(page)
             if not entries:
                 break
             for title, u in entries:
-                if u == marker:
-                    hit_marker = True
-                    break
+                if u in dead or self.already_known(title, u):
+                    continue
                 art = self.fetch_article(title, u)
                 if art is None:
-                    # 静态归档 404 视为永久缺失：推进断点后继续
-                    save_progress("yanxuanwk", {"last_url": u})
+                    # 静态归档 404 视为永久缺失：记入 dead 集合
+                    dead.add(u)
+                    save_progress("yanxuanwk", {"dead": sorted(dead)})
                     continue
                 yield art
-            if hit_marker or not has_next:
+            if not has_next:
                 break
             page += 1
         if page > PAGE_CAP:
@@ -101,6 +102,3 @@ class YanxuanwkAdapter(SourceAdapter):
             return None
         return Article(title=title, source=self.name, source_url=url,
                        paragraphs=paragraphs, date=date)
-
-    def after_save(self, art: Article, saved: bool):
-        save_progress("yanxuanwk", {"last_url": art.source_url})

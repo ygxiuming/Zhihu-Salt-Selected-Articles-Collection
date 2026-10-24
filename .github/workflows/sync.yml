@@ -49,6 +49,8 @@ jobs:
       - name: 提交并推送
         id: commit
         run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           if [ -n "$(git status --porcelain)" ]; then
             N=$(git status --porcelain | grep -c '^??' || true)
             git add -A
