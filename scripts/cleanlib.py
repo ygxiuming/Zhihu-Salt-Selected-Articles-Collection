@@ -29,12 +29,14 @@ def normalize_filename(stem: str) -> str:
 
     半角括号转全角：括号在 markdown 链接目的地里会截断链接，
     中文语境下全角括号也更符合排版习惯。
+    换行/制表符折叠为单个空格：NTFS 文件名禁止换行，且会破坏
+    shell 工具的逐行输出（语雀文档标题常自带换行）。
     """
     stem = unicodedata.normalize("NFC", stem)
-    for ch in '\\/:*?"<>|':
-        stem = stem.replace(ch, "")
+    for ch in '\\/:*?"<>|\n\r\t':
+        stem = stem.replace(ch, " ")
     stem = stem.replace("(", "（").replace(")", "）")
-    stem = re.sub(r" {2,}", " ", stem).strip().rstrip(".")
+    stem = re.sub(r"\s{2,}", " ", stem).strip().rstrip(".")
     return stem
 
 
