@@ -18,7 +18,7 @@ import os
 import re
 import urllib.parse
 
-from base import Article, SourceAdapter, polite_get
+from base import Article, SourceAdapter, load_progress, polite_get, save_progress
 from cleanlib import clean_markdown_source
 
 BOOK_URL = "https://www.yuque.com/dayuyu-ualcu/azo1ge"
@@ -84,15 +84,24 @@ class YuqueAdapter(SourceAdapter):
         if not entries:
             print(f"  [{self.name}] 目录为空，结束")
             return iter([])
-        print(f"  [{self.name}] 知识库共 {len(entries)} 篇文档")
+        progress = load_progress("yuque")
+        empty = set(progress.get("empty", []))
+        print(f"  [{self.name}] 知识库共 {len(entries)} 篇文档"
+              f"（历史空文档 {len(empty)}）")
         for title, url in entries:
             if self.already_known(title, url):
                 continue
             slug = url.rsplit("/", 1)[-1]
+            if slug in empty:
+                continue
             md = self.fetch_source(slug)
             paragraphs = clean_markdown_source(md)
             if not paragraphs:
-                print(f"  [{self.name}] 正文为空，跳过：{title}")
+                # 已停更库中相当部分文档为空（仅图片/已清空），
+                # 记入 empty 集合避免每轮重拉
+                empty.add(slug)
+                save_progress("yuque", {"empty": sorted(empty)})
+                print(f"  [{self.name}] 正文为空，跳过并记录：{title}")
                 continue
             # 语雀文档标题与知乎问题一致，正文首段常与标题重复
             if paragraphs and paragraphs[0] == title:
