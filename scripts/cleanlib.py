@@ -19,7 +19,9 @@ ENTITY_RE = re.compile(r"&emsp;|&ensp;|&nbsp;|&#8194;|&#8195;|&#160;")
 HTML_TAG_RE = re.compile(r"</?[A-Za-z][^>]{0,160}>")
 # 行内疑似 HTML 结构特征
 HTML_HINT_RE = re.compile(r"class=|<div|<span|<p[ >]|<a |<br", re.I)
-SOURCES = ("我不是盐神", "知乎搬运工")
+# 零宽字符（源站排版残留）
+ZERO_WIDTH_RE = re.compile(r"[\u200b\u200c\u200d\ufeff]")
+SOURCES = ("我不是盐神", "知乎搬运工", "盐选文库")
 
 
 def normalize_filename(stem: str) -> str:
@@ -184,14 +186,15 @@ def parse_article(text: str, source: str, fallback_title: str) -> dict:
 # ---------------------------------------------------------------- 正文清洗
 
 _DROP_PREFIXES = ("[原文地址]", "本文搬运来自", "收藏于", "备案号")
-_JUNK_LINE_RE = re.compile(r"^[\s.。、·,，]+$")
+_JUNK_LINE_RE = re.compile(r"^[\s.。、·,，×✕]*$")
 
 
 def clean_paragraphs(body_lines, source: str) -> list:
     """逐行清洗并重组为段落列表。"""
     paras = []
     for raw in body_lines:
-        ln = raw.replace("\u00a0", " ")
+        ln = ZERO_WIDTH_RE.sub("", raw)
+        ln = ln.replace("\u00a0", " ")
         ln = ENTITY_RE.sub("", ln)
         ln = WATERMARK_RE.sub("", ln)
         s = ln.strip()

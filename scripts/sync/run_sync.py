@@ -7,7 +7,6 @@
 
 环境变量：
   SYNC_RATE              每次请求最小间隔秒数（默认 1.0，对源站友好）
-  SYNC_ENABLE_YANXUANWK  1 启用盐选文库（实验性，默认关）
   SYNC_ENABLE_YUQUE      1 启用语雀盐选库（实验性，默认关）
   GITHUB_STEP_SUMMARY    存在时写入 Actions Summary
 """

@@ -155,7 +155,9 @@ class SourceAdapter:
 
     def write_article(self, art: Article):
         name = unique_name(art.source, art.title, art.source_url)
-        target = safe_dir(art.source) / plain_name(name)
+        src_dir = safe_dir(art.source)
+        src_dir.mkdir(parents=True, exist_ok=True)
+        target = src_dir / plain_name(name)
         meta = {"title": art.title, "source": art.source,
                 "source_url": art.source_url}
         if art.column:
