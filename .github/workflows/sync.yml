@@ -24,6 +24,8 @@ concurrency:
 jobs:
   sync:
     runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.commit.outputs.changed }}
     steps:
       - uses: actions/checkout@v4
 
@@ -88,6 +90,16 @@ jobs:
 
       # 站点部署不在这里触发：GITHUB_TOKEN 被 GitHub 平台禁止创建
       # workflow dispatch（HTTP 403 "Resource not accessible by integration"，
-      # actions: write 权限也绕不过）。deploy.yml 已配置 workflow_run 监听
-      # 本工作流成功结束（conclusion == success）后自动构建，勿再加回。
+      # actions: write 权限也绕不过）。改为下方 deploy-site 任务复用
+      # deploy.yml（reusable workflow，不受该限制），检出最新 main 构建。
+
+  deploy-site:
+    needs: sync
+    if: needs.sync.outputs.changed == 'true'
+    uses: ./.github/workflows/deploy.yml
+    # reusable workflow 的调用方必须显式授予 Pages 部署权限
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
 

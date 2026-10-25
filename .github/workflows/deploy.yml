@@ -1,9 +1,10 @@
 name: 构建部署站点
 
-# 同步完成后由 sync.yml 用 gh workflow run 显式触发（仅有新文章时），
-# 不用 workflow_run 事件：那会在每次同步后无条件再触发一次，造成重复构建
+# 触发方式：手动 / push（源文件变更）/ 被 sync.yml 复用（同步有新增后
+# 直接调用，GITHUB_TOKEN 无法 dispatch 其他 workflow，reusable 调用不受限）
 on:
   workflow_dispatch:
+  workflow_call:
   push:
     branches: [main]
     paths:
@@ -32,7 +33,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      # 显式检出 main 顶端：workflow_call/workflow_run 携带的 SHA 是
+      # 同步开始时的 commit，会漏掉同步期间新推送的文章
       - uses: actions/checkout@v4
+        with:
+          ref: main
 
       - uses: peaceiris/actions-hugo@v3
         with:
