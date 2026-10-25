@@ -1,7 +1,7 @@
 {{ define "main" }}
 <section class="hero">
   <div class="container">
-    <p class="hero-kicker"><span class="dot"></span>每 2 小时自动同步 · 全文在线阅读</p>
+    <p class="hero-kicker"><span class="dot"></span>持续更新 · 全文在线阅读</p>
     <h1>知乎盐选文章收藏</h1>
     <p class="hero-sub">收集 · 清洗 · 在线阅读 · 自动同步 —— 一个会自己长大的盐选文章库</p>
     <div class="search-wrap">
@@ -69,9 +69,9 @@
       本站是 <a href="{{ site.Params.github }}" target="_blank" rel="noopener">GitHub 仓库</a> 的在线阅读版。
       每页内置文章开头，全文在打开时从 GitHub 直链加载（jsDelivr 备用线路），
       支持〈标题 + 正文开头 1500 字〉全文搜索与夜间模式。</div>
-    <div class="about-card"><b>🔄 自动同步</b>
-      GitHub Actions 每 2 小时增量抓取源站，新文章约 2 小时内自动上线；
-      每月 1 号发布全量 ZIP 快照到 Releases。</div>
+    <div class="about-card"><b>🔄 同步机制</b>
+      GitHub Actions 手动触发增量抓取（Actions → 同步源站 → Run workflow），
+      新文章抓取后自动构建上线；每月 1 号发布全量 ZIP 快照到 Releases。</div>
     <div class="about-card"><b>🧱 数据结构</b>
       Pages 只存放轻量索引页与搜索索引，正文按需拉取——站点体积不随文章数线性膨胀。
       也可在仓库内按拼音首字母浏览 <code>目录-*.md</code>。</div>
