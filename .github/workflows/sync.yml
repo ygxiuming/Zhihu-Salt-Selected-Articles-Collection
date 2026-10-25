@@ -12,8 +12,11 @@ on:
         description: "每个源本次最多抓取篇数（0=不限，首跑追平约 7000 篇）"
         default: "800"
 
+# actions: write 是「触发站点部署」步骤 dispatch deploy.yml 所需，
+# 缺失时 gh workflow run 报 403 Resource not accessible by integration
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: sync

@@ -1,10 +1,9 @@
 name: 构建部署站点
 
+# 同步完成后由 sync.yml 用 gh workflow run 显式触发（仅有新文章时），
+# 不用 workflow_run 事件：那会在每次同步后无条件再触发一次，造成重复构建
 on:
   workflow_dispatch:
-  workflow_run:
-    workflows: [同步源站]
-    types: [completed]
   push:
     branches: [main]
     paths:
@@ -31,9 +30,6 @@ concurrency:
 
 jobs:
   build:
-    if: >-
-      ${{ github.event_name != 'workflow_run' ||
-          github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
