@@ -12,11 +12,10 @@ on:
         description: "每个源本次最多抓取篇数（0=不限，首跑追平约 7000 篇）"
         default: "800"
 
-# actions: write 是「触发站点部署」步骤 dispatch deploy.yml 所需，
-# 缺失时 gh workflow run 报 403 Resource not accessible by integration
+# contents: write 供「提交并推送」步骤使用；
+# 不要加 actions: write——GITHUB_TOKEN 无法 dispatch 其他 workflow（平台限制）
 permissions:
   contents: write
-  actions: write
 
 concurrency:
   group: sync
@@ -87,8 +86,8 @@ jobs:
             echo "无新增内容"
           fi
 
-      - name: 触发站点部署
-        if: steps.commit.outputs.changed == 'true'
-        run: gh workflow run deploy.yml --ref main
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # 站点部署不在这里触发：GITHUB_TOKEN 被 GitHub 平台禁止创建
+      # workflow dispatch（HTTP 403 "Resource not accessible by integration"，
+      # actions: write 权限也绕不过）。deploy.yml 已配置 workflow_run 监听
+      # 本工作流成功结束（conclusion == success）后自动构建，勿再加回。
+
