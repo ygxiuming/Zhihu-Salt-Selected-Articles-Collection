@@ -11,7 +11,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from cleanlib import SOURCES
+from cleanlib import SOURCES, hugo_slug
 
 REPO = Path(__file__).resolve().parent.parent
 CATALOG_PREFIX = "目录-"
@@ -19,7 +19,8 @@ ILLEGAL = set('\\/:*?"<>|')
 RESIDUE = ("&emsp;", "&ensp;", "&nbsp;", "备案号")
 
 problems = {"bad_filename": [], "missing_frontmatter": [], "content_residue": [],
-            "broken_catalog_link": [], "uncataloged_articles": []}
+            "broken_catalog_link": [], "uncataloged_articles": [],
+            "slug_conflict": []}
 
 
 def check_filenames():
@@ -95,10 +96,28 @@ def check_catalog_links(stems):
         problems["uncataloged_articles"].append(f"（共 {len(missing)} 篇未收录）")
 
 
+def check_slug_conflicts():
+    """同一源内 Hugo slug 冲突的文件组：两页会写同一路径导致输出交错损坏。"""
+    from collections import defaultdict
+    for source in SOURCES:
+        d = REPO / source
+        if not d.is_dir():
+            continue
+        groups = defaultdict(list)
+        for p in sorted(d.glob("*.md")):
+            if not p.name.startswith(CATALOG_PREFIX):
+                groups[hugo_slug(p.name[:-3])].append(p.name)
+        for slug, names in groups.items():
+            if len(names) > 1:
+                problems["slug_conflict"].append(
+                    f"{source}/{slug}: {names[:3]}")
+
+
 def main():
     check_filenames()
     stems = check_articles()
     check_catalog_links(stems)
+    check_slug_conflicts()
     total = sum(len(v) for v in problems.values())
     for key, items in problems.items():
         print(f"[{'FAIL' if items else 'PASS'}] {key}: {len(items)}")

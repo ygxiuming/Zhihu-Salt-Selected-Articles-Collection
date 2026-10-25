@@ -20,7 +20,7 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from catalog import (REPO, plain_name, rebuild_index, safe_dir, write_catalog,
                      write_index)
-from cleanlib import build_markdown, norm_title, normalize_filename
+from cleanlib import build_markdown, hugo_slug, norm_title, normalize_filename
 
 PROGRESS_DIR = safe_dir("data") / "progress"
 RATE_SECONDS = float(os.environ.get("SYNC_RATE", "1.0") or "1.0")
@@ -92,6 +92,27 @@ def load_known_urls() -> set:
     return {a["u"] for a in data.get("articles", []) if a.get("u")}
 
 
+_slug_cache: dict = {}
+
+
+def used_slugs(source: str) -> set:
+    """源目录内已有文件名的 Hugo slug 集合（进程内缓存）。
+
+    slug 冲突的两篇文章会渲染到同一路径，Hugo 并发写同一文件会
+    交错产生损坏页面（历史遗留 206 组曾致线上随机坏页）。
+    """
+    if source not in _slug_cache:
+        base = safe_dir(source)
+        slugs = set()
+        if base.is_dir():
+            for p in base.iterdir():
+                if p.is_file() and p.name.endswith(".md") \
+                        and not p.name.startswith("目录-"):
+                    slugs.add(hugo_slug(p.name[:-3]))
+        _slug_cache[source] = slugs
+    return _slug_cache[source]
+
+
 def existing_file(source: str, title: str) -> bool:
     """按规范化文件名判断是否已存在同名文章（标题去重之外的兜底）。"""
     stem = normalize_filename(title)
@@ -99,14 +120,23 @@ def existing_file(source: str, title: str) -> bool:
 
 
 def unique_name(source: str, title: str, source_url: str) -> str:
-    """目标文件名；重名时用源文章 ID 后缀区分。"""
+    """目标文件名；slug 冲突（含精确重名）时用源文章 ID 后缀区分。"""
     stem = normalize_filename(title)
-    base = safe_dir(source)
-    if not (base / f"{stem}.md").exists():
+    slugs = used_slugs(source)
+    if hugo_slug(stem) not in slugs:
+        slugs.add(hugo_slug(stem))
         return f"{stem}.md"
     m = re.search(r"/[aAuU]?/(\d+)", source_url or "")
-    suffix = f"（a{m.group(1)}）" if m else f"（{int(time.time()) % 100000}）"
-    return f"{stem}{suffix}.md"
+    for _ in range(20):
+        suffix = f"（a{m.group(1)}）" if m else f"（{int(time.time()) % 100000}）"
+        cand = f"{stem}{suffix}"
+        if hugo_slug(cand) not in slugs:
+            slugs.add(hugo_slug(cand))
+            return f"{cand}.md"
+        if m:                       # ID 后缀也撞车，退回时间戳后缀
+            m = None
+        time.sleep(0.01)
+    raise RuntimeError(f"无法为 {title!r} 生成唯一文件名")
 
 
 class SourceAdapter:

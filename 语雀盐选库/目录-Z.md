@@ -1,6 +1,6 @@
 # 语雀盐选库 · Z
 
-共 43 篇 · [返回 语雀盐选库 目录](./目录-README.md)
+共 33 篇 · [返回 语雀盐选库 目录](./目录-README.md)
 
 ## [中医是不是动了西医、现代医学的奶酪才会被黑的如此惨？](./中医是不是动了西医、现代医学的奶酪才会被黑的如此惨？.md)
 
@@ -55,30 +55,6 @@
 [阅读原文](https://www.yuque.com/dayuyu-ualcu/azo1ge/stfmoh4gdzp2z3iy)
 
 > 历史环游记
-
-## [作为一个能看不能说的哑巴英语人（大学六级水平），如何最高效提升口语听说能力？](./作为一个能看不能说的哑巴英语人（大学六级水平），如何最高效提升口语听说能力？.md)
-
-[阅读原文](https://www.yuque.com/dayuyu-ualcu/azo1ge/gn5kr9q3nolvxcsc)
-
-> Mike Zhang
-
-## [作为一个非金融从业者怎样才能看懂电影《大空头》？](./作为一个非金融从业者怎样才能看懂电影《大空头》？.md)
-
-[阅读原文](https://www.yuque.com/dayuyu-ualcu/azo1ge/uupl47)
-
-> 叶泊枫
-
-## [作为从业多年的医生，你对医学生有什么忠告？](./作为从业多年的医生，你对医学生有什么忠告？.md)
-
-[阅读原文](https://www.yuque.com/dayuyu-ualcu/azo1ge/ht3m7w)
-
-> 李鸿政医生
-
-## [做过什么比较爽的报复吗？](./做过什么比较爽的报复吗？.md)
-
-[阅读原文](https://www.yuque.com/dayuyu-ualcu/azo1ge/ragqy485ifrgwi83)
-
-> 王年月
 
 ## [再见我的好室友
 
@@ -172,12 +148,6 @@
 
 > 干货逻辑
 
-## [总是追求完美然后一事无成怎么办？-盐选心理](./总是追求完美然后一事无成怎么办？-盐选心理.md)
-
-[阅读原文](https://www.yuque.com/dayuyu-ualcu/azo1ge/oxnv86)
-
-> 盐选心理
-
 ## [找到一份适合的工作为什么越来越难？
 
 趋势与周期 3：货币、债务与投资时钟](./找到一份适合的工作为什么越来越难？ 趋势与周期 3：货币、债务与投资时钟.md)
@@ -199,28 +169,6 @@
 [阅读原文](https://www.yuque.com/dayuyu-ualcu/azo1ge/zoh9fn)
 
 > 专三千
-
-## [最厉害的间谍是谁？](./最厉害的间谍是谁？.md)
-
-[阅读原文](https://www.yuque.com/dayuyu-ualcu/azo1ge/ygegtg)
-
-> 小约翰
-
-## [最后一顿年夜饭
-
-人生要战斗：横冲直撞过大年](./最后一顿年夜饭 人生要战斗：横冲直撞过大年.md)
-
-[阅读原文](https://www.yuque.com/dayuyu-ualcu/azo1ge/colx14s25gngpm5v)
-
-> 腊月二十九，我选择在这天离开人世。
-
-## [最后的真相
-
-荒蛮故事](./最后的真相 荒蛮故事.md)
-
-[阅读原文](https://www.yuque.com/dayuyu-ualcu/azo1ge/bng9lyqg2af6rvd3)
-
-> 在大学里，辅导员不在乎你挂科、逃课、逛夜店。
 
 ## [自由度最低的游戏是怎样的？](./自由度最低的游戏是怎样的？.md)
 
@@ -269,17 +217,3 @@
 [阅读原文](https://www.yuque.com/dayuyu-ualcu/azo1ge/xnsumsa0frd3u3g8)
 
 > 我的妹妹被霸凌后，割腕自尽。
-
-## [长公主
-
-凤还巢：朱墙内她人间清醒](./长公主 凤还巢：朱墙内她人间清醒.md)
-
-[阅读原文](https://www.yuque.com/dayuyu-ualcu/azo1ge/meppeye71oi7zx26)
-
-> 我的侍女是个穿越女。
-
-## [长夜之火  君心终得见：勇敢女主执着追爱](./长夜之火 君心终得见：勇敢女主执着追爱.md)
-
-[阅读原文](https://www.yuque.com/dayuyu-ualcu/azo1ge/go6zo2)
-
-> 微博发了和男朋友的合照，第二天评论区炸了。
